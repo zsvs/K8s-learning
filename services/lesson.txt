@@ -1,0 +1,9 @@
+kubectl create deployment svs-deployment --image ghostsvsghost/k8s.php:latest
+
+kubectl scale deployment svs-deployment --replicas 3
+
+
+####################### SERVICE ###############################
+
+kubectl expose deployment <DEPLOYMENT_NAME>--type=CLusterIP --port <PORT_NUMBER> # Crete services
+
