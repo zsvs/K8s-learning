@@ -1,0 +1,20 @@
+﻿apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: my-web-deployment
+  labels:
+    app : my-k8s-application
+spec:
+  selector:
+    matchLabels:
+      project: kgb
+  template:
+    metadata:
+      labels:
+        project: kgb
+    spec:
+      containers:
+        - name : kgb-web
+          image: ghostsvsghost/k8s.php:latest
+          ports:
+            - containerPort: 80

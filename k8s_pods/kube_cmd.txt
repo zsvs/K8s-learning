@@ -1,0 +1,66 @@
+﻿kubectl run hello #--generator=run-pod/v1# --image=ghostsvs/k8s.php:latest --port=80
+            <POD_NAME>                           <IMAGE_NAME>             <EXPOSE_PORT>
+
+kubectl delete pods <POD_NAME>
+
+kubectl describe pods <POD_NAME>  # Get info about pods
+
+kubectl exec -it<FOR_INTERACTIVE> <POD_NAME> --  <COMMAND> # Exec in pod
+
+kubectl logs <POD_NAME> # Pods logs
+
+kubectl port-forward <POD_NAME> <LOCALHOST_PORT>:<POD_PORT>
+
+
+######################## ABOUT MANIFEST FILE ########################################
+
+Must be in yaml format
+
+https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/
+
+API REF
+https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/
+
+kubectl apply -f <FILE_NAME.yaml>
+
+
+########################## ABOUT DEPLOYMENTS ###################################################
+
+kubectl create deployment <DEPLOYMENT_NAME> --image <IMAGE_NAME>
+
+kubectl get deploy # For get info about deploy
+
+kubectl describe pods <DEPLOYMENT_NAME> <POD_NAME>
+
+kubectl describe deployment <DEPLOYMENT_NAME>
+########################## AUTO SCALING ###########################################################################
+
+kubectl scale deployment <DEPLOYMENT_NAME> --replicas <REPLICAS_COUNT>
+
+kubectl get rs # Get replicas set - info about desired-current-ready count of pods
+
+# Create horizontal autoscaling of pods
+kubectl autoscale deployment <DEPLOYMENT_NAME> --min=4 --max=6 --cpu-percent=80
+                                                <MIN_SIZE>  <MAX_SIZE>
+
+kubectl get hpa
+
+# History of resource
+
+kubectl rollout history deployment/<DEPLOYMENT_NAME>
+kubectl rollout status deployment/<DEPLOYMENT_NAME>
+
+# Update image in deployment
+
+kubectl set image deployment/<DEPLOYMENT_NAME> <CONTAINER*_NAME>=<DOCKERHUB_IMAGE_NAME> --record
+* - kubectl describe deployment svs-deployment # Look for a container
+# Undo to previous version of image
+
+kubectl rollout undo deployment/<DEPLOYMENT_NAME>
+
+# Rollback to previous specific version of image
+kubectl rollout undo deployment/<DEPLOYMENT_NAME> --to-revision=<VERSION_NUMBER>
+
+# To run and update deployment
+kubectl apply -f <DEPLOYMENT_MANIFEST_FILE.yaml>
+

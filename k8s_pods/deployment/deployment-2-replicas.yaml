@@ -1,0 +1,23 @@
+﻿apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: my-web-deployment-replicas
+  labels:
+    app  : my-k8s-application
+    env  : prod
+    owner: svs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      project: cia
+  template:
+    metadata:
+      labels:
+        project: cia
+    spec:
+      containers:
+        - name : cia-web
+          image: ghostsvsghost/k8s.php:latest
+          ports:
+            - containerPort: 80
