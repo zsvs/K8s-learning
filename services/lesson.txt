@@ -5,5 +5,8 @@ kubectl scale deployment svs-deployment --replicas 3
 
 ####################### SERVICE ###############################
 
-kubectl expose deployment <DEPLOYMENT_NAME>--type=CLusterIP --port <PORT_NUMBER> # Crete services
+# Crete services
+kubectl expose deployment <DEPLOYMENT_NAME> --type=CLusterIP --port <PORT_NUMBER>
 
+# Get serice info
+kubectl get svc
