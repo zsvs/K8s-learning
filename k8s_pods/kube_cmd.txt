@@ -21,6 +21,8 @@ https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-obj
 API REF
 https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/
 
+https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta2/
+
 kubectl apply -f <FILE_NAME.yaml>
 
 
@@ -45,8 +47,9 @@ kubectl autoscale deployment <DEPLOYMENT_NAME> --min=4 --max=6 --cpu-percent=80
 
 kubectl get hpa
 
-# History of resource
+################################### DEPLOYMENT ROLLING UPDATE & UNDO #########################################
 
+# History of resource
 kubectl rollout history deployment/<DEPLOYMENT_NAME>
 kubectl rollout status deployment/<DEPLOYMENT_NAME>
 
@@ -54,7 +57,7 @@ kubectl rollout status deployment/<DEPLOYMENT_NAME>
 
 kubectl set image deployment/<DEPLOYMENT_NAME> <CONTAINER*_NAME>=<DOCKERHUB_IMAGE_NAME> --record
 * - kubectl describe deployment svs-deployment # Look for a container
-# Undo to previous version of image
+# Undo previous version of  docker image
 
 kubectl rollout undo deployment/<DEPLOYMENT_NAME>
 
@@ -64,3 +67,72 @@ kubectl rollout undo deployment/<DEPLOYMENT_NAME> --to-revision=<VERSION_NUMBER>
 # To run and update deployment
 kubectl apply -f <DEPLOYMENT_MANIFEST_FILE.yaml>
 
+###################################### SERVICE #############################################################
+kubectl create deployment svs-deployment --image ghostsvsghost/k8s.php:latest
+
+kubectl scale deployment svs-deployment --replicas 3
+
+# Crete services for specific deployment
+kubectl expose deployment <DEPLOYMENT_NAME> --type=CLusterIP --port <PORT_NUMBER>
+
+# Get serice info
+kubectl get svc
+########################################## INGRESS ########################################################
+
+### Install Ingress Controller: Contour
+kubectl apply -f https://projectcontour.io/quickstart/contour.yaml
+kubectl get services -n projectcontour envoy -o wide
+
+Get LoadBalancer IP or DNS Name and assign Your Domain to this DNS name
+
+# Create Deployments
+kubectl create deployment <DEPLOYMENT_NAME>   --image=adv4000/k8sphp:latest
+kubectl create deployment web1   --image=adv4000/k8sphp:version1
+kubectl create deployment web2   --image=adv4000/k8sphp:version2
+kubectl create deployment webx   --image=adv4000/k8sphp:versionx
+kubectl create deployment tomcat --image=tomcat:8.5.38
+
+# Scale Deployments
+kubectl scale deployment <DEPLOYMENT_NAME>  --replicas 2
+kubectl scale deployment web1  --replicas 2
+kubectl scale deployment web2  --replicas 2
+kubectl scale deployment webx  --replicas 2
+
+# Create Services, default type is: --type=ClusterIP
+kubectl expose deployment <DEPLOYMENT_NAME>   --port 80
+kubectl expose deployment web1   --port 80
+kubectl expose deployment web2   --port 80
+kubectl expose deployment webx   --port 80
+kubectl expose deployment tomcat --port 8080
+
+kubectl get services -o wide
+
+kubectl apply -f ingress-hosts.yaml
+kubectl apply -f ingress-paths.yaml
+kubectl get ingress
+kubectl describe ingress
+
+# Completely delete Ingress Controller: Contour
+kubectl delete ns projectcontour
+
+####################################### HELM CHARTS ########################################################
+# Deploy of chart
+helm install <NAME_OF_CHART>/
+
+helm install <NAME_OF_CHART>/ -f <FILE_NAME>
+
+helm install <NAME_OF_CHART>/ --set container.image=<DOCKER_IMAGE> --set ReplicaCount=<COUNT_REPLICA>
+
+# Print helm charts
+helm list 
+
+# Udpate revision of helm
+helm update <NAME_OF_CHART>/ --set container.image=<DOCKER_IMAGE> --set ReplicaCount=<COUNT_REPLICA>
+
+# Adding helm repo
+helm repo add bitnami https://charts.bitnami.com/bitnami
+
+# Search in repo or hub
+helm search repo
+
+helm search hub <HUB_NAME>
