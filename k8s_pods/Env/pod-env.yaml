@@ -1,0 +1,14 @@
+﻿# Simpliest Manifest File to create Pod with one Container
+apiVersion : v1 # Type of API
+kind: Pod # What type of Resource
+metadata:
+  name: hello-conf-map # POD_NAME
+spec:
+  containers:
+    - name : container-hello
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+      env:
+        - name: SOME_NAME
+          value: some_value
