@@ -1,0 +1,19 @@
+﻿# kubectl create configmap NAME --from-literal=KEY=VALUE\
+# --from-literal=KEY=VALUE \
+# kubectl create configmap NAME --from-file=PATH_TO_FILE
+#! confmap.properties
+#! NAME1=VAL1
+# !NAME2=VAL2
+####################################
+#
+#
+#
+#
+apiVersion : v1
+kind: ConfigMap
+metadata:
+  name: some-configmap
+data:
+  SOME_ENV1: val1
+  SOME_ENV2: val2
+  SOME_ENV3: val3
