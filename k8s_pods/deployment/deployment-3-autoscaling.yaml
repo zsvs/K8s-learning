@@ -7,7 +7,6 @@ metadata:
     env  : prod
     owner: svs
 spec:
-#  replicas: 2   # Don't need this anymore as we are using HorizontalPodAutoscaler
   selector:
     matchLabels:
       project: mossad
