@@ -1,0 +1,20 @@
+﻿# Simpliest Manifest File to create Pod with one Container
+apiVersion : v1 # Type of API
+kind: Pod # What type of Resource
+metadata:
+  name: init-container-example # POD_NAME
+spec:
+  containers:
+    - name : container-hello
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+      envFrom:
+        - secretRef:
+            name: some-secret
+
+
+  initContainers:
+    - name: init-container-name
+      image: some-image:latest
+      command: ['sh', '-c', 'command']
