@@ -1,4 +1,4 @@
-﻿kubectl run hello #--generator=run-pod/v1# --image=ghostsvs/k8s.php:latest --port=80
+﻿kubectl run hello --image=ghostsvs/k8s.php:latest --port=80
             <POD_NAME>                           <IMAGE_NAME>             <EXPOSE_PORT>
 
 kubectl delete pods <POD_NAME>

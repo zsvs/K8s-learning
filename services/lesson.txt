@@ -10,3 +10,7 @@ kubectl expose deployment <DEPLOYMENT_NAME> --type=CLusterIP --port <PORT_NUMBER
 
 # Get serice info
 kubectl get svc
+
+##################### MONITORING #################################
+minikube addons enable metric-server
+kubectl apply -f

@@ -1,4 +1,4 @@
-apiVersion : apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: my-web-deployment
@@ -19,7 +19,6 @@ spec:
           image: ghostsvsghost/k8s.php:latest
           ports:
             - containerPort: 80
-
 ---
 apiVersion: v1
 kind: Service
