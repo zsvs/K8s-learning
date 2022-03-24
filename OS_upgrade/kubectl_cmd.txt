@@ -1,0 +1,58 @@
+﻿kubectl drain NODE_NAME - to drain all work loads from node to another
+kubectl uncordon NODE_NAME - to add node to schedule
+kubectl cordon NODE_NAME - forbids node to participate in schedule
+
+##### UPGRADE K8S RELEASE #####
+kubeadm upgrade plan
+kubeadm upgrade apply
+First we need to update MASTER node.
+
+Node upgrade strategy:
+1) Recreate (not preffered)
+2) One node per step. Blue/green
+3) Add nodes with new version
+
+##############STEPS###############
+Check version:
+kubeadm version
+
+Update kubeadm:
+apt upgrade -y kubeadm=1.21.0-00
+apt update && apt-cache madison kubeadm
+apt install -y kubeadm=1.21.#-00
+
+Update via kubeadm:
+kubeadm upgrade plan
+kubeadm upgrade apply
+
+kubeadm don't manage kubelet on work nodes
+
+Update kubelet:
+apt upgrade -y kubelet=1.21.0-00 kubectl=1.21.0-00 --allow-change-held-packages
+
+Stop workloads:
+kubectl drain NODE_NAME --ignore-daemonsets
+After that update kubelet on NODE_NAME
+kubeadm upgrade NODE_NAME
+kubectl uncordon NODE_NAME
+
+
+##### BACKUP AND RESTORE #####
+
+kubectl get all --all-namespaces -o yaml > all-deploy-and-svc.yaml
+
+ETCD:
+
+ETCDCTL_API=3 etcdctl snapshot save snapshot.db
+
+Steps:
+
+Stop service:
+service kube-apiserver Stop
+ETCDCTL_API=3 etcdctl snapshot restore snapshot.sb --data-dit /var/lib/etcd-backup
+
+systemctl daemon-reload
+service etcd restart
+service kube-apiserver start
+
+May need to correct ETCD confs
