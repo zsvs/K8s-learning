@@ -1,0 +1,17 @@
+﻿---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-pod
+
+spec:
+  securityContext:
+    runAsUser: 1001
+  containers:
+    - name: alpine
+      image: alpine
+      command: ["sleep", "5"]
+      #securityContext:
+        #runAsUser: 1001
+        #capabilities:
+          #add: ["NET_ASDMIN"]
