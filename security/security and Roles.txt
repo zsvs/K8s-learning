@@ -1,0 +1,75 @@
+﻿Use keys to create users
+kube-apiserver.service
+--basic-auth-file
+
+CSR creation:
+openssl req -new -key my.key -out my-cert.csr \
+-subj "/C=RU/ST=MO/O=YOUR_ORG/CN=YOUR.DOMAIN"
+
+Server components:
+1) kube-apiserver
+2) ETCD
+3) kubelet
+
+Client components:
+1) Users
+2) kube-scheduler
+3) kube-proxy
+
+Root cert creation:
+    Gen rsa key:
+        openssl genrsa -out ca.key 4096
+    Create csr for key:
+        openssl req -new -key ca.key -subj "/CN=KUBERNETES-CA" -out ca.csr
+    Create root cert x.509:
+        openssl x509 -req -in ca.csr -signkey ca.key -out ca.cert
+
+User cert creation:
+    Gen rsa key:
+        openssl genrsa -out ca.key 4096
+        openssl req -new -key admin.key -subj "/CN=kube-admin/O=system:masters" -out admin.csr
+        openssl x509 -req -in admin.csr -CA ca.crt -CAkey ca.key -out admin.crt
+
+View cert details:
+check logs:
+    journalctl -u etcd.service -l
+if kubeadm using for installing cluster
+kubectl -n kube-system logs etcd-controlplane
+
+Certificate API
+CA server:
+It's a couple of files
+Look to CSR object in yaml file
+
+kube.config file conains 3 sections:
+1) Cluster
+2) Contexts
+3) Users
+
+#######################
+
+ROLES and BINDINGS:
+kubectl get roles
+kubectl get rolebindings
+same in "describe"
+
+kubctl auth can-i create/delete deploy/nodes/pods [--as <USERNAME>]
+
+Check api namespaced resources:
+kubectl api-resources --namespaced=true
+
+#######################
+
+IMAGE SECURITY:
+
+kubectl create secret docker-registry <NAME> \
+--docker-server=private-registry.io \
+--docker-username=SOME_UNAME \
+--docker-password=REGIDTRY_PASS \
+--docker-email=somemail@gmail.com \
+
+#######################
+
+Contexsts:
+
+check pod_with_context.yaml
