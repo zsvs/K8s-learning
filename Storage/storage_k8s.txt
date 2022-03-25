@@ -1,1 +1,8 @@
-﻿
+﻿Storage in docker:
+docker create volume MY_VOLUME_NAME
+docker run -v MY_VOLUME_NAME:/var/lib/mysql - old style, volume bind
+docker run --mount type=bind,source=PATH_TO_VOLUME_ON_LOCAL,target=/var/lib/mysql mysql - mount drive
+
+
+To get PVC:
+kubectl get persistentvolumeclaim

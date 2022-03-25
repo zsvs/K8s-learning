@@ -14,8 +14,37 @@ spec:
       image: nginx:latest
       ports:
         - containerPort: 80
+      volumeMounts:
+        - mountPath: /opt
+          name: data-volume
+  volumes: # Not recomendet for multinodes cluster
+    - name: data-volume
+      hostPath:
+        path: /data #Mount volume on container
+        type: Directory
 
-    - name : container-api
-      image: tomcat:8.5.38
+---
+# Volume in AWS EBS
+apiVersion : v1
+kind: Pod
+metadata:
+  name: my-app
+  labels:
+    env  : prod
+    app  : main
+    tier : frontend
+    owner: svs
+spec:
+  containers:
+    - name : container-web
+      image: nginx:latest
       ports:
-        - containerPort: 8080
+        - containerPort: 80
+      volumeMounts:
+        - mountPath: /opt
+          name: data-volume
+  volumes: # Not recomendet for multinodes cluster
+    - name: data-volume
+      awsElasticBlockStore:
+        volumeID: my-ebs-volume-id
+        fsType: ext4
