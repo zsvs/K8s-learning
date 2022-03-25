@@ -1,0 +1,49 @@
+﻿---
+# Automate PV creation
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: my-storage
+provisioner: kubernetes.io/gce-pd
+
+parameters:
+  type: pd-standard
+  replication-type: none
+
+---
+#PVCs
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: claim-volume1
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: my-gcp-storage #!#####!
+  resources:
+    requests:
+      storage: 500Mi
+
+---
+apiVersion : v1
+kind: Pod
+metadata:
+  name: my-app
+  labels:
+    env  : prod
+    app  : main
+    tier : frontend
+    owner: svs
+spec:
+  containers:
+    - name : container-web
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+      volumeMounts:
+        - mountPath: /opt
+          name: data-volume
+  volumes: # Not recomendet for multinodes cluster
+    - name: data-volume
+      PersistentVolumeClaim:
+        claimName: claim-volume1
