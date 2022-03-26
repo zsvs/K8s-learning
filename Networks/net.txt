@@ -1,6 +1,136 @@
 ﻿Linux commands:
     Check NIC:
         > ip link
+To save all commands configure: /etc/network/interfaces
 
-ip addr add 192.168.1.10/24 dev eth0
-ip addr add 192.168.1.11/24 dev eth0
+Connect each other:
+> ip addr add 192.168.1.10/24 dev eth0
+> ip addr add 192.168.1.11/24 dev eth0
+
+Check routes:
+    > route
+
+Connect two subnets:
+    > ip route add 192.168.2.0/24 via 192.168.1.1
+    > ip route add 192.168.1.0/24 via 192.168.2.1
+
+Conncet router to INET:
+    > ip route add default[0.0.0.0] via 192.168.2.1
+    > ip route add 172.217.194.0/24 via 192.168.2.1
+
+*nix as a router:
+    3 subnets
+    white[192.168.1.5] eth0--[192.168.1.0]--eth0 [192.168.1.6]yellow eth1[192.168.2.6]--[192.168.2.0]--eth0[192.168.2.5] blue
+
+    WHITE:
+    > ip route add 192.168.2.0/24 via 192.168.1.6
+
+    BLUE:
+    > ip route add 192.168.1.0/24 via 192.168.2.6
+
+    eth0 cannot forward packets to eth1 on YELLOW
+
+    You should configure ip forwarding between interface: /proc/sys/net/ipv4/ip_forward - set to "1"
+    But this param not saving. So configure /etc/sysctl.conf - net.ipv4.ip_forward=1
+
+
+NAT:
+
+On YELLOW:
+    > iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -j MASQUERADE
+    Check tcp:
+        > tcpdump -l
+
+
+DNS:
+
+We are using CoreDNS
+
+/etc/resolv.conf:
+ns 192.168.1.200
+search your.domain    # For internal short name search
+
+
+Configure order where from resolve:
+/etc/nsswitch.conf
+
+NETWORK NAMESPACE:
+
+    > ip netns add yellow - create new net NAMESPACE
+
+    > ip netns exec yellow ip kink - run <ip link> in designated NAMESPACE
+      ip -n yellow link
+
+Links between NAMESPACE:
+
+ip link add veth-yellow type veth peer name veth-blue - create link between NAMESPACES
+
+ip link set veth-yellow netns yellow - link virtual eth to yellow ns
+ip link set veth-blue netns blue - link to blue
+
+Create routes:
+ip -n yellow addr add 192.168.15.1/24 dev veth-yellow
+ip -n blue addr add 192.168.15.2/24 dev veth-blue
+
+UP link:
+ip -n blue link set veth-blue up
+
+Virtual switch(Linux bridge):
+
+delete link:
+ip -n yellow link del veth-yellow
+
+ip link add v-net-0 type bridge - create new bridge
+ip link set dev v-net-0 up - set it UP
+
+ip link add veth-yellow type veth peer name veth-yellow-br
+ip link add veth-blue type veth peer name veth-blue-br
+
+For UP it:
+ip link set veth-yellow netns yellow
+ip link set veth-blue netns blue
+ip link set veth-yellow-br master v-net-0
+ip -n yellow addr add 192.168.15.1/24 dev veth-yellow
+ip -n blue addr add 192.168.15.2/24 dev veth-blue
+ip -n yellow link set veth-yellow up
+ip link set veth-yellow-br up
+ip -n blue link set veth-blue up
+ip link set veth-blue-br up
+
+if no transport between NAMESPACES:
+    > sudo iptables -A FORWARD -p all -i v-net-0 -j ACCEPT
+    > sudo iptables -P FORWARD ACCEPT
+    > sudo systemctl stop firewalld
+
+NAT HOST-TO-NS:
+iptables -t nat -A POSTROUTING -s 192.168.15.0/24 -j MASQUERADE
+
+For access to INET:
+    > ip netns exec blue ip route add default via 192.168.15.5
+
+Create NAT to our web app in NS:
+iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destenation 192.168.15.3:80
+
+Docket NETWORK:
+
+docker run --network none IMAGE - No NETWORK for container
+
+Default NET is bridge
+
+ln -s /var/run/docker/netns /var/run/ - for show NAMESPACES in output of <ip netns>
+
+Look CNI config:
+
+ls /opt/cni/bin
+ls /etc/cni/net.d
+
+Deploye Weave CNI pluggin:
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
+CoreDNS configs transmits to k8s as ConfigMap
+
+We assign DNS server in kubelet config:
+    /var/lib/kubelet/config.yaml:
+        clusterDNS:
+            - IP_ADDR
+        clusterDomain: cluster.local
