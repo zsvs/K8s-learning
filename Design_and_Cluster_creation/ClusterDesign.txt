@@ -1,0 +1,42 @@
+﻿Best practices:
+    https://kubernetes.io./docs/setup/best-practices/cluster-large
+
+HA Multi-Node: Multiple master and workers
+EKS or Kops, GKE, AKS, kubeadm/kubespray Setup and other
+Up to 5K nodes in cluster
+Up to 150K PODs in cluster
+up to 300K Containers in cluster
+Up to 100 PODs per Node
+
+Platform:
+ Master always on Linux
+ Win container escape vulnerabilities
+ Instance Limitations in Clouds with Windows
+
+Placement:
+    Compliance
+    Kubeadm/spray On-premise
+    EKS, GKE, AKS, ACK etc
+
+Masters can host workload, but in best practice is to not hosts workloads
+
+HA for ETCD:
+    ETCD leader election:
+        RAFT proto for elect another leader
+        Quorum = N/2+1 (Number of instances that have to participate in the elections process)
+    Best to choose an odd number of instances
+
+Steps for setup cluster:
+1) Install container runtime environment (docker etc)
+2) Install kubeadm
+3) Init master server
+4) Install POD Network
+5) Join other nodes to cluster
+
+kubeadm cmd:
+
+sudo kubeadm init \
+    --control-plane-endpoint=<LOADBALANCER_IP_ADDR> \
+    --upload-certs \
+    --apiserver-advertise-address=<IP_ADDR> \
+    --pod-network-cidr=<CIDR_BLOCK> #Depends of net pluggin 10.224.0.0 for WeaveNet
